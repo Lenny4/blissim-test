@@ -1,0 +1,8 @@
+framework:
+    cache:
+        # Cache applicatif (réponses de l'API produits) : système de fichiers par défaut
+
+when@test:
+    framework:
+        cache:
+            app: cache.adapter.array

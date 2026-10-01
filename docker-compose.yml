@@ -1,0 +1,45 @@
+services:
+  app:
+    build: .
+    # Même uid que l'hôte pour que vendor/ et var/ ne soient pas créés en root
+    user: "${UID:-1000}:${GID:-1000}"
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      DATABASE_DSN: "pgsql:host=db;port=5432;dbname=blissim"
+      DATABASE_USER: app
+      DATABASE_PASSWORD: app
+      COMPOSER_HOME: /tmp/composer
+      # off (défaut), debug, coverage, ou combinaison : XDEBUG_MODE=debug docker compose up -d
+      XDEBUG_MODE: ${XDEBUG_MODE:-off}
+      # Nom du serveur à déclarer dans PhpStorm (mapping /app -> racine du projet)
+      PHP_IDE_CONFIG: serverName=blissim
+    # Permet à Xdebug de joindre l'IDE de la machine hôte (nécessaire sous Linux)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: blissim
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      # Schéma + données de la partie SQL et table des commentaires, chargés au premier démarrage
+      - ./blissim.sql:/docker-entrypoint-initdb.d/blissim.sql:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "app", "-d", "blissim"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  pg_data:

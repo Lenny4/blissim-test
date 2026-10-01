@@ -1,0 +1,5 @@
+# Jetons CSRF classiques stockés en session (formulaires + suppression)
+framework:
+    form:
+        csrf_protection: true
+    csrf_protection: true

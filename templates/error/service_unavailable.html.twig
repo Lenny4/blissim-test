@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Service indisponible{% endblock %}
+
+{% block body %}
+    <div class="text-center py-5">
+        <h1 class="h3 mb-3">Oups, un service est momentanément indisponible</h1>
+        <p class="text-body-secondary">{{ message }}</p>
+        <p class="text-body-secondary">Merci de réessayer dans quelques instants.</p>
+        <a href="{{ path('product_index') }}" class="btn btn-primary">Réessayer</a>
+    </div>
+{% endblock %}

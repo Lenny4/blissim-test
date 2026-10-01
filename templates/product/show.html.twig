@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ product.title }}{% endblock %}
+
+{% block body %}
+    <a href="{{ path('product_index') }}" class="btn btn-link px-0 mb-3">&larr; Retour au catalogue</a>
+
+    <div class="card shadow-sm mb-4">
+        <div class="row g-0">
+            <div class="col-md-4 bg-white d-flex align-items-center justify-content-center p-4">
+                <img src="{{ product.image }}" class="img-fluid product-img-lg" alt="{{ product.title }}">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    {% if product.category %}
+                        <span class="badge text-bg-secondary mb-2">{{ product.category }}</span>
+                    {% endif %}
+                    <h1 class="h4 card-title">{{ product.title }}</h1>
+                    <p class="fs-4 fw-bold">{{ product.priceCents|format_cents }}</p>
+                    <p class="card-text">{{ product.description }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section id="comments" class="row g-4">
+        <div class="col-lg-7">
+            <h2 class="h5 mb-3">Commentaires ({{ comments|length }})</h2>
+
+            {% for comment in comments %}
+                <article class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <strong>{{ comment.author }}</strong>
+                                <small class="text-body-secondary">
+                                    le {{ comment.createdAt|date('d/m/Y à H:i') }}
+                                    {% if comment.edited %}(modifié){% endif %}
+                                </small>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="{{ path('comment_edit', {id: comment.id}) }}" class="btn btn-sm btn-outline-secondary">Modifier</a>
+                                <form method="post" action="{{ path('comment_delete', {id: comment.id}) }}"
+                                      onsubmit="return confirm('Supprimer ce commentaire ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete-comment-' ~ comment.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer</button>
+                                </form>
+                            </div>
+                        </div>
+                        <p class="card-text mt-2 mb-0">{{ comment.content|nl2br }}</p>
+                    </div>
+                </article>
+            {% else %}
+                <p class="text-body-secondary">Aucun commentaire pour l'instant. Soyez le premier !</p>
+            {% endfor %}
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5 mb-3">Laisser un commentaire</h2>
+                    {{ form_start(form, {action: path('product_show', {id: product.id}) ~ '#comments'}) }}
+                        {{ form_widget(form) }}
+                        <button type="submit" class="btn btn-primary">Publier</button>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

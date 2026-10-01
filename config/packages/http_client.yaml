@@ -1,0 +1,21 @@
+framework:
+    http_client:
+        scoped_clients:
+            # Client dédié à l'API produits, injecté via HttpClientInterface $fakestoreClient
+            fakestore.client:
+                base_uri: '%env(FAKESTORE_API_URL)%'
+                headers:
+                    Accept: 'application/json'
+                # Temps max d'inactivité / durée totale d'une requête (en secondes)
+                timeout: 5
+                max_duration: 10
+                # Nouvelles tentatives sur erreurs réseau et statuts 423/425/429/5xx
+                retry_failed:
+                    max_retries: 2
+                    delay: 500
+
+when@test:
+    framework:
+        http_client:
+            # Toutes les requêtes HTTP sont servies par un faux serveur FakeStore
+            mock_response_factory: App\Tests\Support\FakeStoreMockResponseFactory
